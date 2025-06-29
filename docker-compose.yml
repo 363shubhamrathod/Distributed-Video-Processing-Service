@@ -17,6 +17,7 @@ services:
       - minio
       - postgres
     command: python manage.py runserver 0.0.0.0:8000
+    working_dir: /app/app
 
   # Celery Worker for background tasks
   celery:
@@ -32,6 +33,7 @@ services:
       - minio
       - postgres
     command: celery -A video_processor worker --loglevel=info
+    working_dir: /app/app
 
   # Celery Beat for scheduled tasks
   celery-beat:
@@ -44,6 +46,7 @@ services:
     depends_on:
       - redis
     command: celery -A video_processor beat --loglevel=info
+    working_dir: /app/app
 
   # Redis for caching and message broker
   redis:

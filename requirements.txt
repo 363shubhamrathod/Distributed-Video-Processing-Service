@@ -3,6 +3,7 @@ djangorestframework==3.14.0
 django-cors-headers==4.3.1
 celery==5.3.4
 redis==5.0.1
+numpy==1.24.3
 opencv-python==4.8.1.78
 ultralytics==8.0.196
 minio==7.2.0

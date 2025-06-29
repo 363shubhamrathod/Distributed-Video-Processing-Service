@@ -228,6 +228,8 @@ def detect_objects_in_frames_task(self, video_id: str, frame_numbers: list = Non
         frame_numbers: List of frame numbers to process (None for all)
     """
     try:
+        import cv2
+        
         video = Video.objects.get(id=video_id)
         
         # Create processing task record

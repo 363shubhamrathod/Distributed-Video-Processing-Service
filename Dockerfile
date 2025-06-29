@@ -18,7 +18,6 @@ RUN apt-get update \
         libxext6 \
         libxrender-dev \
         libgomp1 \
-        libgthread-2.0-0 \
         libgtk-3-0 \
         libavcodec-dev \
         libavformat-dev \
