@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # Django Web Application
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./media:/app/media
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=video_processor.settings
+    depends_on:
+      - redis
+      - minio
+      - postgres
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # Celery Worker for background tasks
+  celery:
+    build: .
+    volumes:
+      - .:/app
+      - ./media:/app/media
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=video_processor.settings
+    depends_on:
+      - redis
+      - minio
+      - postgres
+    command: celery -A video_processor worker --loglevel=info
+
+  # Celery Beat for scheduled tasks
+  celery-beat:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=video_processor.settings
+    depends_on:
+      - redis
+    command: celery -A video_processor beat --loglevel=info
+
+  # Redis for caching and message broker
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=video_processor
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # MinIO for S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  # ElasticMQ for SQS emulation (optional)
+  elasticmq:
+    image: softwaremill/elasticmq-native:latest
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./elasticmq.conf:/opt/elasticmq.conf
+
+volumes:
+  redis_data:
+  postgres_data:
+  minio_data: 
